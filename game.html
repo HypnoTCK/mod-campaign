@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HypnoTCK's MOD Campaign</title>
+
+    <script src="//cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        body, html {
+            margin: 0;
+            overflow: hidden;
+        }
+        #gameCanvas {
+            display: block;
+            /* background-color: #000; */
+            background: url('img/game/rizzo_bg.png') no-repeat;
+            background-position: left;
+            background-size: cover;
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="audioPlayer"></audio>
+
+    <div id="infoDiv" class="w-full">
+        <h1 class="text-4xl text-center font-bold">HypnoTCK for MOD</h1>
+        <h2 class="text-2xl text-center font-normal">September 2024</h2>
+
+        <br>
+
+        <p class="w-6/12 text-2xl m-auto text-center">To all the amazing voters, I want you to know how much this community means to me, so I've created a little game to help our beloved streamer kick his habit. Come on, Rizzo, resist the temptation, we're all cheering for you!!!</p>
+
+        <br><br>
+
+        <p class="w-5/12 text-2xl m-auto text-center">Score 10 points and prove to us you're on the path to recovery!</p>
+        
+        <br>
+        
+        <div class="flex gap-8 justify-center w-fit m-auto">
+            <div class="p-2 rounded bg-blue-500 w-fit text-white text-xl font-bold m-auto hover:bg-blue-600 cursor-pointer" onclick="startGame()">START</div>
+            <a href="home.html"><div class="p-2 rounded bg-blue-500 w-fit text-white text-xl font-bold m-auto hover:bg-blue-600 cursor-pointer">MAYBE LATER</div></a>
+        </div>
+        
+    </div>
+
+    <div id="postgameDiv" class="w-full hidden">
+        <h1 class="text-4xl text-center font-bold">HypnoTCK for MOD</h1>
+        <h2 class="text-2xl text-center font-normal">September 2024</h2>
+        
+        <br>
+
+        <p class="w-5/12 text-2xl m-auto text-center">
+            Congratulations, Rizzo! You did it! You've scored 10 points and shown everyone that you're stronger than the urge. The community is proud of you, keep up the great work! 🎉
+        </p>
+
+        <br>
+        
+        <div class="flex gap-8 justify-center w-fit m-auto">
+            <a href="home.html"><div class="p-2 rounded bg-blue-500 w-fit text-white text-xl font-bold m-auto hover:bg-blue-600 cursor-pointer">HOME</div></a>
+            <!-- <div class="p-2 rounded bg-blue-500 w-fit text-white text-xl font-bold m-auto hover:bg-blue-600 cursor-pointer" onclick="window.location.reload()">TRY AGAIN</div> -->
+        </div>
+    </div>
+
+    <canvas id="gameCanvas" class="invisible"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let player = {
+            x: canvas.width / 2,
+            y: canvas.height - 80,
+            width: 80,
+            height: 80,
+            image: new Image()
+        };
+
+        player.image.src = 'img/game/rizzo.png';
+
+        let boxes = [];
+        let waterSpeed = 2;
+        let beerSpeed = 2.5;
+        let boxFrequency = 30; // Frequency for spawning boxes
+        let waterHeight = 40;
+        let beerHeight = 70;
+        let frames = 0;
+        let score = 0;
+        let minusAudio = false
+
+        const waterImage = new Image()
+        waterImage.src = 'img/game/water.png';
+
+        const beerImage = new Image();
+        beerImage.src = 'img/game/beer.png';
+
+        document.addEventListener('mousemove', (e) => {
+            player.x = e.clientX - player.width / 2;
+        });
+
+        function startGame(){
+
+            document.getElementById('infoDiv').remove()
+
+            canvas.classList.replace("invisible", "visible")
+            update()
+        }
+
+        function drawBox(box) {
+            ctx.drawImage(box.image, box.x, box.y, box.width, box.height);
+        }
+
+        function detectCollision(box1, box2) {
+            return !(box1.x > box2.x + box2.width ||
+                    box1.x + box1.width < box2.x ||
+                    box1.y > box2.y + box2.height ||
+                    box1.y + box1.height < box2.y);
+        }
+
+        function drawScore() {
+            ctx.font = '30px Arial';
+            ctx.fillStyle = 'black';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Score: ${score}`, canvas.width / 2, 40);
+        }
+
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawBox(player);
+
+            if (frames % boxFrequency === 0) {
+                if (Math.random() < 0.3) { // 30% chance to spawn water
+                    let water = {
+                        x: Math.random() * (canvas.width - 30),
+                        y: 0,
+                        width: 40,
+                        height: waterHeight,
+                        image: waterImage,
+                        type: 'water'
+                    };
+                    boxes.push(water);
+                }
+
+                if (Math.random() < 0.7) { // 70% chance to spawn beer
+                    let beer = {
+                        x: Math.random() * (canvas.width - 30),
+                        y: 0,
+                        width: 40,
+                        height: beerHeight,
+                        image: beerImage,
+                        type: 'beer'
+                    };
+                    boxes.push(beer);
+                }
+            }
+
+            boxes.forEach((box, index) => {
+                box.y += (box.type === 'water' ? waterSpeed : beerSpeed);
+
+                if (detectCollision(player, box)) {
+                    boxes.splice(index, 1); // Remove the box if collected
+
+                    if (box.type === 'water') { // Water collected
+                        score++;
+                    } else if (box.type === 'beer') { // Beer collected
+                        score -= 1;
+                    }
+
+                    if(score == 10){
+                        canvas.remove()
+                        document.getElementById("postgameDiv").classList.replace("hidden", "visible")
+                    }
+
+                    if(score < 0 && minusAudio == false){
+                        audioPlayer.setAttribute("src", "audios/game/oh-brother.mp3")
+                        audioPlayer.volume = 1
+                        audioPlayer.play()
+                        minusAudio = true
+                    }
+                }
+
+                if (box.y > canvas.height) {
+                    boxes.splice(index, 1); // Remove box if it goes off-screen
+                } else {
+                    drawBox(box);
+                }
+            });
+
+            drawScore();
+
+            frames++;
+            requestAnimationFrame(update);
+        }
+    </script>
+
+</body>
+</html>

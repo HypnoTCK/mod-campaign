@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HypnoTCK's MOD Campaign</title>
+
+    <script src="//cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <h1 class="text-center text-3xl font-bold">HypnoTCK for MOD</h1>
+
+    <br>
+
+    <div id="question">
+        <p class="flex text-3xl font-bold items-center justify-center gap-4"><img src="img/emotes/police.webp"> Secutiry
+            Check <img src="img/emotes/police.webp"></p>
+        <p class="w-6/12 text-2xl m-auto text-center">This website was made for Rizzo fans, to prove you're a rizzo fan
+            answer correctly:</p>
+
+        <br><br>
+
+        <p class="font-bold text-center text-2xl">Would Dillon "Rizzo" Rizzo, give <span class="underline">10 MILLION
+                DOLLARS</span> to all his viewers, if he had the chance?</p>
+
+        <div class="flex gap-2 w-2/6 m-auto mt-4">
+            <p class="p-2 rounded border border-blue-500 w-fit text-white text-xl font-bold m-auto hover:bg-blue-500 hover:text-black cursor-pointer"
+                onclick="wrong()">YES</p>
+            <p class="p-2 rounded border border-blue-500 w-fit text-white text-xl font-bold m-auto hover:bg-blue-500 hover:text-black cursor-pointer"
+                onclick="correct()">NO</p>
+        </div>
+    </div>
+
+    <div id="wrong" class="m-auto hidden">
+        <img src="img/emotes/sus.webp" class="m-auto">
+
+        <p class="flex gap-1 items-center justify-center text-xl mt-2">Oops, wrong answer! Rizzo would never do that.
+            But hey, I'm a forgiving soul, so I'll give you another shot. <img src="img/emotes/smile.webp" width="35px"
+                alt="" srcset=""></p>
+        <p class="p-2 rounded w-fit text-black text-xl font-bold m-auto bg-blue-500 hover:bg-blue-600 text-white cursor-pointer mt-2"
+            onclick="tryAgain()">TRY AGAIN</p>
+    </div>
+
+    <div id="correct" class="m-auto hidden">
+        <img src="img/emotes/saj.webp" class="m-auto">
+
+        <p class="flex gap-1 items-center justify-center text-xl mt-2">Correct!! Every true Rizzo fan knows he don't fw
+            us no more</p>
+        <a href="home.html">
+            <p
+                class="p-2 rounded w-fit text-black text-xl font-bold m-auto bg-blue-500 hover:bg-blue-600 text-white cursor-pointer mt-2">
+                CONTINUE</p>
+        </a>
+    </div>
+
+    <script>
+        const questionDiv = document.getElementById("question")
+        const wrongDiv = document.getElementById("wrong")
+        const correctDiv = document.getElementById("correct")
+
+        function wrong() {
+            questionDiv.classList.add("hidden")
+
+            wrongDiv.classList.replace("hidden", "visible")
+        }
+
+        function correct() {
+            questionDiv.classList.add("hidden")
+
+            correctDiv.classList.replace("hidden", "visible")
+        }
+
+        function tryAgain() {
+            wrongDiv.classList.replace("visible", "hidden")
+            questionDiv.classList.remove("hidden")
+        }
+    </script>
+</body>
+
+</html>
